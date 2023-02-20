@@ -5,6 +5,22 @@
 # Session Data files
 .RData
 
+
+# Text Files
+*.txt
+
+# PDF Files
+*.pdf
+
+# Shape Files
+*.nc
+
+# exclude Shapefiles -- for the moment
+data/sf/*
+
+# Compressed Files
+*.zip
+
 # User-specific files
 .Ruserdata
 
