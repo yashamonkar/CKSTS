@@ -20,11 +20,15 @@ Get_Seasonal_Correlation <- function(Fld1,Fld2, # Data
                                      Fld1_Sims,Fld2_Sims, #Simulations
                                      Grid, #Location
                                      start_date,
-                                     col_hx){
+                                     col_hx,
+                                     Region){
   #Load Dependencies
   library(ggplot2)
   library(gridExtra)
   library(usmap)
+  
+  #Change grid-names
+  colnames(Grid) <- c("lon", "lat")
   
   #Hyper-Parameters
   sims <- length(Fld1_Sims)
@@ -32,6 +36,13 @@ Get_Seasonal_Correlation <- function(Fld1,Fld2, # Data
   st_date <- as.POSIXct(start_date, format="%m-%d-%Y %H:%M")
   time_stamps <- seq(st_date, by = "hour", length.out =nrow(Fld1))
   month_stamps <- as.numeric(format(time_stamps,"%m"))
+  
+  #Get Lat-Lon Extend
+  lat_lon <- Region %>% fortify() %>% select(long,lat)
+  lat_min <- min(lat_lon$lat)-0.5
+  lat_max <- max(lat_lon$lat)+0.5
+  lon_min <- min(lat_lon$long)-0.5
+  lon_max <- max(lat_lon$long)+0.5
   
   
   #______________________________________________________________________________#
@@ -92,7 +103,7 @@ Get_Seasonal_Correlation <- function(Fld1,Fld2, # Data
     theme_bw()
   
   #Spatial Correlation for Median Simulation
-  Grid_Plot <- data.frame(lon = Grid$lon-360,lat = Grid$lat, Corr = st_plot$Sims)
+  Grid_Plot <- data.frame(lon = Grid$lon,lat = Grid$lat, Corr = st_plot$Sims)
   #True Data Grid Correlation
   world <- map_data("world")
   us <- map_data("state")
@@ -104,8 +115,8 @@ Get_Seasonal_Correlation <- function(Fld1,Fld2, # Data
     geom_map(data=us, map=us,
              aes(x=long, y=lat, map_id=region),
              fill="#D3D3D3", color="#000000", size=0.15) +
-    scale_x_continuous(name = "lon", limits = c(-107, -92)) +
-    scale_y_continuous(name = "lat", limits = c(25.5, 36.5)) +
+    scale_x_continuous(name = " ", limits = c(lon_min, lon_max)) +
+    scale_y_continuous(name = " ", limits = c(lat_min, lat_max)) +
     geom_tile(data = Grid_Plot, aes(x= lon, y = lat, fill = Corr)) +
     scale_fill_gradient2(midpoint=0, low="blue", mid="white",high="red", 
                          limits = c(-0.5, 0.5)) +
@@ -116,7 +127,7 @@ Get_Seasonal_Correlation <- function(Fld1,Fld2, # Data
           axis.ticks = element_blank())
   
   #Spatial Correlation for True Data
-  Grid_Plot <- data.frame(lon = Grid$lon-360,lat = Grid$lat, Corr = st_plot$Dat)
+  Grid_Plot <- data.frame(lon = Grid$lon,lat = Grid$lat, Corr = st_plot$Dat)
   us <- map_data("state", region = "Texas")
   p13 <- ggplot() + 
     geom_map(data=world, map=world,
@@ -125,8 +136,8 @@ Get_Seasonal_Correlation <- function(Fld1,Fld2, # Data
     geom_map(data=us, map=us,
              aes(x=long, y=lat, map_id=region),
              fill="#D3D3D3", color="#000000", size=0.15) +
-    scale_x_continuous(name = "lon", limits = c(-107, -92)) +
-    scale_y_continuous(name = "lat", limits = c(25.5, 36.5)) +
+    scale_x_continuous(name = " ", limits = c(lon_min, lon_max)) +
+    scale_y_continuous(name = " ", limits = c(lat_min, lat_max)) +
     geom_tile(data = Grid_Plot, aes(x= lon, y = lat, fill = Corr)) +
     scale_fill_gradient2(midpoint=0, low="blue", mid="white",high="red", 
                          limits = c(-0.5, 0.5)) +
@@ -137,7 +148,7 @@ Get_Seasonal_Correlation <- function(Fld1,Fld2, # Data
           axis.ticks = element_blank())
   
   #Spatial Correlation for difference
-  Grid_Plot <- data.frame(lon = Grid$lon-360,lat = Grid$lat, Corr = st_plot$Diff)
+  Grid_Plot <- data.frame(lon = Grid$lon,lat = Grid$lat, Corr = st_plot$Diff)
   us <- map_data("state", region = "Texas")
   p14 <- ggplot() + 
     geom_map(data=world, map=world,
@@ -146,8 +157,8 @@ Get_Seasonal_Correlation <- function(Fld1,Fld2, # Data
     geom_map(data=us, map=us,
              aes(x=long, y=lat, map_id=region),
              fill="#D3D3D3", color="#000000", size=0.15) +
-    scale_x_continuous(name = "lon", limits = c(-107, -92)) +
-    scale_y_continuous(name = "lat", limits = c(25.5, 36.5)) +
+    scale_x_continuous(name = " ", limits = c(lon_min, lon_max)) +
+    scale_y_continuous(name = " ", limits = c(lat_min, lat_max)) +
     geom_tile(data = Grid_Plot, aes(x= lon, y = lat, fill = Corr)) +
     scale_fill_gradient2(midpoint=0, low="blue", mid="white",high="red", 
                          limits = c(-0.5, 0.5)) +
@@ -215,7 +226,7 @@ Get_Seasonal_Correlation <- function(Fld1,Fld2, # Data
     theme_bw()
   
   #Spatial Correlation for Median Simulation
-  Grid_Plot <- data.frame(lon = Grid$lon-360,lat = Grid$lat, Corr = st_plot$Sims)
+  Grid_Plot <- data.frame(lon = Grid$lon,lat = Grid$lat, Corr = st_plot$Sims)
   
   p22 <- ggplot() + 
     geom_map(data=world, map=world,
@@ -224,8 +235,8 @@ Get_Seasonal_Correlation <- function(Fld1,Fld2, # Data
     geom_map(data=us, map=us,
              aes(x=long, y=lat, map_id=region),
              fill="#D3D3D3", color="#000000", size=0.15) +
-    scale_x_continuous(name = "lon", limits = c(-107, -92)) +
-    scale_y_continuous(name = "lat", limits = c(25.5, 36.5)) +
+    scale_x_continuous(name = " ", limits = c(lon_min, lon_max)) +
+    scale_y_continuous(name = " ", limits = c(lat_min, lat_max)) +
     geom_tile(data = Grid_Plot, aes(x= lon, y = lat, fill = Corr)) +
     scale_fill_gradient2(midpoint=0, low="blue", mid="white",high="red", 
                          limits = c(-0.5, 0.5)) +
@@ -236,7 +247,7 @@ Get_Seasonal_Correlation <- function(Fld1,Fld2, # Data
           axis.ticks = element_blank())
   
   #Spatial Correlation for True Data
-  Grid_Plot <- data.frame(lon = Grid$lon-360,lat = Grid$lat, Corr = st_plot$Dat)
+  Grid_Plot <- data.frame(lon = Grid$lon,lat = Grid$lat, Corr = st_plot$Dat)
   us <- map_data("state", region = "Texas")
   p23 <- ggplot() + 
     geom_map(data=world, map=world,
@@ -245,8 +256,8 @@ Get_Seasonal_Correlation <- function(Fld1,Fld2, # Data
     geom_map(data=us, map=us,
              aes(x=long, y=lat, map_id=region),
              fill="#D3D3D3", color="#000000", size=0.15) +
-    scale_x_continuous(name = "lon", limits = c(-107, -92)) +
-    scale_y_continuous(name = "lat", limits = c(25.5, 36.5)) +
+    scale_x_continuous(name = " ", limits = c(lon_min, lon_max)) +
+    scale_y_continuous(name = " ", limits = c(lat_min, lat_max)) +
     geom_tile(data = Grid_Plot, aes(x= lon, y = lat, fill = Corr)) +
     scale_fill_gradient2(midpoint=0, low="blue", mid="white",high="red", 
                          limits = c(-0.5, 0.5)) +
@@ -257,7 +268,7 @@ Get_Seasonal_Correlation <- function(Fld1,Fld2, # Data
           axis.ticks = element_blank())
   
   #Spatial Correlation for difference
-  Grid_Plot <- data.frame(lon = Grid$lon-360,lat = Grid$lat, Corr = st_plot$Diff)
+  Grid_Plot <- data.frame(lon = Grid$lon,lat = Grid$lat, Corr = st_plot$Diff)
   us <- map_data("state", region = "Texas")
   p24 <- ggplot() + 
     geom_map(data=world, map=world,
@@ -266,8 +277,8 @@ Get_Seasonal_Correlation <- function(Fld1,Fld2, # Data
     geom_map(data=us, map=us,
              aes(x=long, y=lat, map_id=region),
              fill="#D3D3D3", color="#000000", size=0.15) +
-    scale_x_continuous(name = "lon", limits = c(-107, -92)) +
-    scale_y_continuous(name = "lat", limits = c(25.5, 36.5)) +
+    scale_x_continuous(name = " ", limits = c(lon_min, lon_max)) +
+    scale_y_continuous(name = " ", limits = c(lat_min, lat_max)) +
     geom_tile(data = Grid_Plot, aes(x= lon, y = lat, fill = Corr)) +
     scale_fill_gradient2(midpoint=0, low="blue", mid="white",high="red", 
                          limits = c(-0.5, 0.5)) +
@@ -333,7 +344,7 @@ Get_Seasonal_Correlation <- function(Fld1,Fld2, # Data
     theme_bw()
   
   #Spatial Correlation for Median Simulation
-  Grid_Plot <- data.frame(lon = Grid$lon-360,lat = Grid$lat, Corr = st_plot$Sims)
+  Grid_Plot <- data.frame(lon = Grid$lon,lat = Grid$lat, Corr = st_plot$Sims)
   
   p32 <- ggplot() + 
     geom_map(data=world, map=world,
@@ -342,8 +353,8 @@ Get_Seasonal_Correlation <- function(Fld1,Fld2, # Data
     geom_map(data=us, map=us,
              aes(x=long, y=lat, map_id=region),
              fill="#D3D3D3", color="#000000", size=0.15) +
-    scale_x_continuous(name = "lon", limits = c(-107, -92)) +
-    scale_y_continuous(name = "lat", limits = c(25.5, 36.5)) +
+    scale_x_continuous(name = " ", limits = c(lon_min, lon_max)) +
+    scale_y_continuous(name = " ", limits = c(lat_min, lat_max)) +
     geom_tile(data = Grid_Plot, aes(x= lon, y = lat, fill = Corr)) +
     scale_fill_gradient2(midpoint=0, low="blue", mid="white",high="red", 
                          limits = c(-0.5, 0.5)) +
@@ -354,7 +365,7 @@ Get_Seasonal_Correlation <- function(Fld1,Fld2, # Data
           axis.ticks = element_blank())
   
   #Spatial Correlation for True Data
-  Grid_Plot <- data.frame(lon = Grid$lon-360,lat = Grid$lat, Corr = st_plot$Dat)
+  Grid_Plot <- data.frame(lon = Grid$lon,lat = Grid$lat, Corr = st_plot$Dat)
   us <- map_data("state", region = "Texas")
   p33 <- ggplot() + 
     geom_map(data=world, map=world,
@@ -363,8 +374,8 @@ Get_Seasonal_Correlation <- function(Fld1,Fld2, # Data
     geom_map(data=us, map=us,
              aes(x=long, y=lat, map_id=region),
              fill="#D3D3D3", color="#000000", size=0.15) +
-    scale_x_continuous(name = "lon", limits = c(-107, -92)) +
-    scale_y_continuous(name = "lat", limits = c(25.5, 36.5)) +
+    scale_x_continuous(name = " ", limits = c(lon_min, lon_max)) +
+    scale_y_continuous(name = " ", limits = c(lat_min, lat_max)) +
     geom_tile(data = Grid_Plot, aes(x= lon, y = lat, fill = Corr)) +
     scale_fill_gradient2(midpoint=0, low="blue", mid="white",high="red", 
                          limits = c(-0.5, 0.5)) +
@@ -375,7 +386,7 @@ Get_Seasonal_Correlation <- function(Fld1,Fld2, # Data
           axis.ticks = element_blank())
   
   #Spatial Correlation for difference
-  Grid_Plot <- data.frame(lon = Grid$lon-360,lat = Grid$lat, Corr = st_plot$Diff)
+  Grid_Plot <- data.frame(lon = Grid$lon,lat = Grid$lat, Corr = st_plot$Diff)
   us <- map_data("state", region = "Texas")
   p34 <- ggplot() + 
     geom_map(data=world, map=world,
@@ -384,8 +395,8 @@ Get_Seasonal_Correlation <- function(Fld1,Fld2, # Data
     geom_map(data=us, map=us,
              aes(x=long, y=lat, map_id=region),
              fill="#D3D3D3", color="#000000", size=0.15) +
-    scale_x_continuous(name = "lon", limits = c(-107, -92)) +
-    scale_y_continuous(name = "lat", limits = c(25.5, 36.5)) +
+    scale_x_continuous(name = " ", limits = c(lon_min, lon_max)) +
+    scale_y_continuous(name = " ", limits = c(lat_min, lat_max)) +
     geom_tile(data = Grid_Plot, aes(x= lon, y = lat, fill = Corr)) +
     scale_fill_gradient2(midpoint=0, low="blue", mid="white",high="red", 
                          limits = c(-0.5, 0.5)) +
@@ -452,7 +463,7 @@ Get_Seasonal_Correlation <- function(Fld1,Fld2, # Data
     theme_bw()
   
   #Spatial Correlation for Median Simulation
-  Grid_Plot <- data.frame(lon = Grid$lon-360,lat = Grid$lat, Corr = st_plot$Sims)
+  Grid_Plot <- data.frame(lon = Grid$lon,lat = Grid$lat, Corr = st_plot$Sims)
   
   p42 <- ggplot() + 
     geom_map(data=world, map=world,
@@ -461,8 +472,8 @@ Get_Seasonal_Correlation <- function(Fld1,Fld2, # Data
     geom_map(data=us, map=us,
              aes(x=long, y=lat, map_id=region),
              fill="#D3D3D3", color="#000000", size=0.15) +
-    scale_x_continuous(name = "lon", limits = c(-107, -92)) +
-    scale_y_continuous(name = "lat", limits = c(25.5, 36.5)) +
+    scale_x_continuous(name = " ", limits = c(lon_min, lon_max)) +
+    scale_y_continuous(name = " ", limits = c(lat_min, lat_max)) +
     geom_tile(data = Grid_Plot, aes(x= lon, y = lat, fill = Corr)) +
     scale_fill_gradient2(midpoint=0, low="blue", mid="white",high="red", 
                          limits = c(-0.5, 0.5)) +
@@ -473,7 +484,7 @@ Get_Seasonal_Correlation <- function(Fld1,Fld2, # Data
           axis.ticks = element_blank())
   
   #Spatial Correlation for True Data
-  Grid_Plot <- data.frame(lon = Grid$lon-360,lat = Grid$lat, Corr = st_plot$Dat)
+  Grid_Plot <- data.frame(lon = Grid$lon,lat = Grid$lat, Corr = st_plot$Dat)
   us <- map_data("state", region = "Texas")
   p43 <- ggplot() + 
     geom_map(data=world, map=world,
@@ -482,8 +493,8 @@ Get_Seasonal_Correlation <- function(Fld1,Fld2, # Data
     geom_map(data=us, map=us,
              aes(x=long, y=lat, map_id=region),
              fill="#D3D3D3", color="#000000", size=0.15) +
-    scale_x_continuous(name = "lon", limits = c(-107, -92)) +
-    scale_y_continuous(name = "lat", limits = c(25.5, 36.5)) +
+    scale_x_continuous(name = " ", limits = c(lon_min, lon_max)) +
+    scale_y_continuous(name = " ", limits = c(lat_min, lat_max)) +
     geom_tile(data = Grid_Plot, aes(x= lon, y = lat, fill = Corr)) +
     scale_fill_gradient2(midpoint=0, low="blue", mid="white",high="red", 
                          limits = c(-0.5, 0.5)) +
@@ -494,7 +505,7 @@ Get_Seasonal_Correlation <- function(Fld1,Fld2, # Data
           axis.ticks = element_blank())
   
   #Spatial Correlation for difference
-  Grid_Plot <- data.frame(lon = Grid$lon-360,lat = Grid$lat, Corr = st_plot$Diff)
+  Grid_Plot <- data.frame(lon = Grid$lon,lat = Grid$lat, Corr = st_plot$Diff)
   us <- map_data("state", region = "Texas")
   p44 <- ggplot() + 
     geom_map(data=world, map=world,
@@ -503,8 +514,8 @@ Get_Seasonal_Correlation <- function(Fld1,Fld2, # Data
     geom_map(data=us, map=us,
              aes(x=long, y=lat, map_id=region),
              fill="#D3D3D3", color="#000000", size=0.15) +
-    scale_x_continuous(name = "lon", limits = c(-107, -92)) +
-    scale_y_continuous(name = "lat", limits = c(25.5, 36.5)) +
+    scale_x_continuous(name = " ", limits = c(lon_min, lon_max)) +
+    scale_y_continuous(name = " ", limits = c(lat_min, lat_max)) +
     geom_tile(data = Grid_Plot, aes(x= lon, y = lat, fill = Corr)) +
     scale_fill_gradient2(midpoint=0, low="blue", mid="white",high="red", 
                          limits = c(-0.5, 0.5)) +

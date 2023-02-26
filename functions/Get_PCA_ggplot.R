@@ -17,17 +17,28 @@
 
 
 #______________________________________________________________________________#
-get_pca_plot <- function(X, Grid, Field, Sims){
+get_pca_plot <- function(X, Grid, Field, Sims, Region){
   
   ###Load Dependencies
   library(ggplot2)
   library(gridExtra)
+  library(dplyr)
+  
+  #Change grid-names
+  colnames(Grid) <- c("lon", "lat")
   
   
   ###PCA on the Data
   pcw <- prcomp(X, scale = TRUE, center = TRUE)
   var <- (pcw$sdev^2)
   var <- (var)/sum(var)
+  
+  #Get Lat-Lon Extend
+  lat_lon <- Region %>% fortify() %>% select(long,lat)
+  lat_min <- min(lat_lon$lat)-0.5
+  lat_max <- max(lat_lon$lat)+0.5
+  lon_min <- min(lat_lon$long)-0.5
+  lon_max <- max(lat_lon$long)+0.5
   
   
   ###Plotting the Data PC-1
@@ -43,14 +54,14 @@ get_pca_plot <- function(X, Grid, Field, Sims){
     geom_map(data=us, map=us,
              aes(x=long, y=lat, map_id=region),
              fill="#D3D3D3", color="#000000", size=0.15) +
-    geom_tile(data = Grid, aes(x= lon-360, y = lat, fill = Eigenvectors)) + 
+    geom_tile(data = Grid, aes(x= lon, y = lat, fill = Eigenvectors)) + 
     scale_fill_gradient2(midpoint= 0,
                           low="red", mid="green",high="blue", 
                           limits = c(min(Grid$Eigenvectors), max(Grid$Eigenvectors))) +
     labs(title = paste0("Data PC-1 ", Field), y = " ", x = " ",
          subtitle = paste0("Fractional Variance - ", round(var[1]*100),"%")) + 
-    scale_x_continuous(name = "lon", limits = c(-107, -92)) +
-    scale_y_continuous(name = "lat", limits = c(25.5, 36.5)) +
+    scale_x_continuous(name = " ", limits = c(lon_min, lon_max)) +
+    scale_y_continuous(name = " ", limits = c(lat_min, lat_max)) +
     theme_bw() +
     theme(axis.text=element_text(size=0),
           axis.title=element_text(size=0),
@@ -66,14 +77,14 @@ get_pca_plot <- function(X, Grid, Field, Sims){
     geom_map(data=us, map=us,
              aes(x=long, y=lat, map_id=region),
              fill="#D3D3D3", color="#000000", size=0.15) +
-    geom_tile(data = Grid, aes(x= lon-360, y = lat, fill = Eigenvectors)) + 
+    geom_tile(data = Grid, aes(x= lon, y = lat, fill = Eigenvectors)) + 
     scale_fill_gradient2(midpoint= 0,
                          low="red", mid="green",high="blue", 
                          limits = c(min(Grid$Eigenvectors), max(Grid$Eigenvectors))) +
     labs(title = paste0("Data PC-1 ", Field), y = " ", x = " ",
          subtitle = paste0("Fractional Variance - ", round(var[2]*100),"%")) + 
-    scale_x_continuous(name = "lon", limits = c(-107, -92)) +
-    scale_y_continuous(name = "lat", limits = c(25.5, 36.5)) +
+    scale_x_continuous(name = " ", limits = c(lon_min, lon_max)) +
+    scale_y_continuous(name = " ", limits = c(lat_min, lat_max)) +
     theme_bw() +
     theme(axis.text=element_text(size=0),
           axis.title=element_text(size=0),
@@ -145,14 +156,14 @@ get_pca_plot <- function(X, Grid, Field, Sims){
     geom_map(data=us, map=us,
              aes(x=long, y=lat, map_id=region),
              fill="#D3D3D3", color="#000000", size=0.15) +
-    geom_tile(data = Grid, aes(x= lon-360, y = lat, fill = Eigenvectors)) + 
+    geom_tile(data = Grid, aes(x= lon, y = lat, fill = Eigenvectors)) + 
     scale_fill_gradient2(midpoint= 0,
                           low="red", mid="green",high="blue", 
                           limits = c(min(Grid$Eigenvectors), max(Grid$Eigenvectors))) +
     labs(title = paste0("Ensemble Mean PC-1 ", Field), y = " ", x = " ",
          subtitle = paste0("Fractional Variance - ", round(pc1_ens*100),"%")) + 
-    scale_x_continuous(name = "lon", limits = c(-107, -92)) +
-    scale_y_continuous(name = "lat", limits = c(25.5, 36.5)) +
+    scale_x_continuous(name = " ", limits = c(lon_min, lon_max)) +
+    scale_y_continuous(name = " ", limits = c(lat_min, lat_max)) +
     theme_bw() +
     theme(axis.text=element_text(size=0),
           axis.title=element_text(size=0),
@@ -169,14 +180,14 @@ get_pca_plot <- function(X, Grid, Field, Sims){
     geom_map(data=us, map=us,
              aes(x=long, y=lat, map_id=region),
              fill="#D3D3D3", color="#000000", size=0.15) +
-    geom_tile(data = Grid, aes(x= lon-360, y = lat, fill = Eigenvectors)) + 
+    geom_tile(data = Grid, aes(x= lon, y = lat, fill = Eigenvectors)) + 
     scale_fill_gradient2(midpoint= 0,
                          low="red", mid="green",high="blue", 
                          limits = c(min(Grid$Eigenvectors), max(Grid$Eigenvectors))) +
     labs(title = paste0("Ensemble Mean PC-2 ", Field), y = " ", x = " ",
          subtitle = paste0("Fractional Variance - ", round(pc2_ens*100),"%")) +
-    scale_x_continuous(name = "lon", limits = c(-107, -92)) +
-    scale_y_continuous(name = "lat", limits = c(25.5, 36.5)) +
+    scale_x_continuous(name = " ", limits = c(lon_min, lon_max)) +
+    scale_y_continuous(name = " ", limits = c(lat_min, lat_max)) +
     theme_bw() +
     theme(axis.text=element_text(size=0),
           axis.title=element_text(size=0),

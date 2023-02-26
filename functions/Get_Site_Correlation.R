@@ -16,14 +16,24 @@
 
 Get_Site_Correlation <- function(Fld1,Fld2, # Data
                                  Fld1_Sims,Fld2_Sims, #Simulations
-                                 Grid){
+                                 Grid, Region){
   
+  #Change grid-names
+  colnames(Grid) <- c("lon", "lat")
   
   library(ggplot2)
   library(usmap)
   
   #Hyper-Parameters
   sims <- length(Fld1_Sims)
+  
+  
+  #Get Lat-Lon Extend
+  lat_lon <- Region %>% fortify() %>% select(long,lat)
+  lat_min <- min(lat_lon$lat)-0.5
+  lat_max <- max(lat_lon$lat)+0.5
+  lon_min <- min(lat_lon$long)-0.5
+  lon_max <- max(lat_lon$long)+0.5
   
   
   #______________________________________________________________________________# 
@@ -89,12 +99,12 @@ Get_Site_Correlation <- function(Fld1,Fld2, # Data
     geom_map(data=us, map=us,
              aes(x=long, y=lat, map_id=region),
              fill="#D3D3D3", color="#000000", size=0.15) +
-    geom_tile(data = Grid, aes(x= lon-360, y = lat, fill = Corr)) +
+    geom_tile(data = Grid, aes(x= lon, y = lat, fill = Corr)) +
     scale_fill_gradient2(midpoint=0, low="blue", mid="white",high="red", 
                          limits = c(-0.4, 0.4)) +
     labs(title = "Reanalysis Data Correlation") +
-    scale_x_continuous(name = "lon", limits = c(-107, -92)) +
-    scale_y_continuous(name = "lat", limits = c(25.5, 36.5)) +
+    scale_x_continuous(name = " ", limits = c(lon_min, lon_max)) +
+    scale_y_continuous(name = " ", limits = c(lat_min, lat_max)) +
     theme_bw() +
     theme(legend.text=element_text(size=15),
           legend.title=element_text(size=15),
@@ -131,12 +141,12 @@ Get_Site_Correlation <- function(Fld1,Fld2, # Data
     geom_map(data=us, map=us,
              aes(x=long, y=lat, map_id=region),
              fill="#D3D3D3", color="#000000", size=0.15) +
-    geom_tile(data = Grid, aes(x= lon-360, y = lat, fill = Corr)) +
+    geom_tile(data = Grid, aes(x= lon, y = lat, fill = Corr)) +
     scale_fill_gradient2(midpoint=0, low="blue", mid="white",high="red", 
                          limits = c(-0.4, 0.4)) +
     labs(title = "Median Simulation Correlation") +
-    scale_x_continuous(name = "lon", limits = c(-107, -92)) +
-    scale_y_continuous(name = "lat", limits = c(25.5, 36.5)) +
+    scale_x_continuous(name = " ", limits = c(lon_min, lon_max)) +
+    scale_y_continuous(name = " ", limits = c(lat_min, lat_max)) +
     theme_bw() +
     theme(legend.text=element_text(size=15),
           legend.title=element_text(size=15),
@@ -160,12 +170,12 @@ Get_Site_Correlation <- function(Fld1,Fld2, # Data
     geom_map(data=us, map=us,
              aes(x=long, y=lat, map_id=region),
              fill="#D3D3D3", color="#000000", size=0.15) +
-    geom_tile(data = Grid, aes(x= lon-360, y = lat, fill = Corr)) +
+    geom_tile(data = Grid, aes(x= lon, y = lat, fill = Corr)) +
     scale_fill_gradient2(midpoint=0, low="blue", mid="white",high="red", 
                          limits = c(-0.4, 0.4)) +
     labs(title = "Difference between Renalysis Data and Simulations") +
-    scale_x_continuous(name = "lon", limits = c(-107, -92)) +
-    scale_y_continuous(name = "lat", limits = c(25.5, 36.5)) +
+    scale_x_continuous(name = " ", limits = c(lon_min, lon_max)) +
+    scale_y_continuous(name = " ", limits = c(lat_min, lat_max)) +
     theme_bw() +
     theme(legend.text=element_text(size=15),
           legend.title=element_text(size=15),
