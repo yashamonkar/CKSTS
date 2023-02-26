@@ -17,7 +17,7 @@
 #All_Grids <- nerc_pop_temp[[2]]
 
 
-get_nerc_gridpoints <- function(year, rto, Shapefiles, Labels, All_Grids){
+get_nerc_gridpoints <- function(year, rto, Labels, All_Grids){
   
   #Packages
   library(ncdf4) 
@@ -32,7 +32,6 @@ get_nerc_gridpoints <- function(year, rto, Shapefiles, Labels, All_Grids){
   
   
   #RTO Parameters
-  sub_region <- Shapefiles[[rto]]
   RTO_Label <- Labels[rto]
   
   
@@ -41,34 +40,7 @@ get_nerc_gridpoints <- function(year, rto, Shapefiles, Labels, All_Grids){
   grid_locs <- unique(grid_locs[c("Longitude","Latitude")]) #Subset unique
   
   
-  ###----------------------Plot the sub-region---------------------------------###
-  #Get Lat-Lon Extend
-  lat_lon <- sub_region %>% fortify() %>% select(long,lat)
-  lat_min <- min(lat_lon$lat)-0.5
-  lat_max <- max(lat_lon$lat)+0.5
-  lon_min <- min(lat_lon$long)-0.5
-  lon_max <- max(lat_lon$long)+0.5
   
-  p1 <-  ggplot() +
-    geom_map(dat = world, map = world, aes(x=long, y=lat, map_id = region),
-             fill = NA, color = "#000000", size = 0.15) +
-    geom_map(dat = us, map = us, aes(x=long, y=lat, map_id = region),
-             fill = "#D3D3D3", color = NA) +
-    geom_polygon(data = sub_region, mapping = aes( x = long, y = lat, group = group), 
-                 fill = "#FFFFFF", color = 'black', size = 1) + 
-    geom_point(data = grid_locs, mapping = aes(x = Longitude, y = Latitude), col='red') +
-    geom_map(dat = us, map = us, aes(x=long, y=lat, map_id = region),
-             fill = NA, color = "#000000", size = 0.15) +
-    scale_x_continuous(name = " ", limits = c(lon_min, lon_max)) +
-    scale_y_continuous(name = " ", limits = c(lat_min, lat_max)) +
-    ggtitle(paste0("  ",RTO_Label)) +
-    theme_bw() +
-    theme(axis.text=element_text(size=0),
-          axis.title=element_text(size=0),
-          axis.ticks = element_blank(),
-          plot.title = element_text(size=28))
-  
-  print(p1)
   
   #______________________________________________________________________________#
   ###Solar
@@ -191,7 +163,7 @@ get_nerc_gridpoints <- function(year, rto, Shapefiles, Labels, All_Grids){
   grid_fields[[2]] <- ssrd
   grid_fields[[3]] <- t2m
   grid_fields[[4]] <- grid_locs
-
+  
   return(grid_fields)  
   
 }
