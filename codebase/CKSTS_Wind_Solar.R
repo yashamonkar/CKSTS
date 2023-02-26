@@ -2,6 +2,7 @@
 #Hybrid KNN Field Simulator
 #Manu's Algorithm - Version for HARD CLUSTERING at each time step.
 #Simulating Joint Wind-Solar-Temperature Fields
+#Code runs for different regions. 
 
 #Algorithm
 # For each time step run KNN for each site. 
@@ -36,7 +37,7 @@ source("functions/Get_Conus_Regions.R")
 source("functions/Get_nerc_annual_data.R")
 
 #______________________________________________________________________________#
-###Reading the Data
+###Inputing the data
 
 #Grid Locations
 nerc_pop_temp <- get(load("data/NERC_Regions_Temp_Population.RData"))
@@ -47,11 +48,11 @@ egrids <- readOGR(dsn= paste0("data/sf/egrid2020_subregions"),
                   layer="eGRID2020_subregions")
 nerc_sf <- get_egrids(egrids_sf = egrids) #Convert to needed regions
 n_regions <- length(nerc_sf$Labels)
-nerc_labels <- c("Arizona/New Mexico", "CAISO", "ERCOT", "Florida", 
-                 "Wisconsin (Rural)", "Midwest (MISO)", "ISO New England", 
-                 "Northwest", "NYISO", "PJM (East)", "Michigan", "PJM (West)", 
-                 "Colorado", "Kansas", "Oklahoma", "Arkansas/Louisiana" , 
-                 "Missouri" ,"Southeast", "Tennesse Valley", "Carolinas")
+nerc_labels <- c("Arizona_New_Mexico", "CAISO", "ERCOT", "Florida", 
+                 "Wisconsin_Rural", "Midwest_MISO", "ISO_New_England", 
+                 "Northwest", "NYISO", "PJM_East", "Michigan", "PJM_West", 
+                 "Colorado", "Kansas", "Oklahoma", "Arkansas_Louisiana" , 
+                 "Missouri" ,"Southeast", "Tennesse_Valley", "Carolinas")
 
 #ggplot shape files
 world <- map_data("world")
@@ -66,7 +67,7 @@ us <- map_data("state")
 
 #Hyper-parameters 
 yr <- 2020 #Select the year
-sel_rto <- 9 #Select the Grid Sub_region
+sel_rto <- 1 #Select the Grid Sub_region
 
 #Data Generation
 annual_data <- get_nerc_gridpoints(year = yr,
@@ -78,20 +79,18 @@ annual_data <- get_nerc_gridpoints(year = yr,
 #Seperate into components
 WS <- annual_data[[1]]
 ssrd <- annual_data[[2]]
-t2m <- annual_data[[3]]
 grid_locs <- annual_data[[4]]
 
 
 #______________________________________________________________________________#
 #Subset
-n <- 2000 #Subset
+n <- 500 #Subset
 ssrd <- ssrd[1:n,]
 WS <- WS[1:n,]
-t2m <- t2m[1:n,]
 ln <- c("2020")
 
 #Select the field.
-Fld <- as.matrix(cbind(WS,ssrd, t2m))
+Fld <- as.matrix(cbind(WS,ssrd))
 colnames(Fld) <- NULL
 
 
@@ -345,13 +344,12 @@ knngrids.noclim <- function(Fld,ngrids, N_valid, #Data Parameters
   
   WSnew = Xnew[,1:n_site]
   SSnew = Xnew[,(n_site+1):(2*n_site)]
-  T2new = Xnew[,(2*n_site+1):ncol(Xnew)]
   Clust <- data.frame(Num = unlist(sel_clust),
                       Max_clust = unlist(max_clust),
                       Min_clust = unlist(min_clust),
                       Hour = unlist(hrs))
   
-  out = list(WSnew=WSnew,SSnew=SSnew,T2new=T2new, Clust = Clust)
+  out = list(WSnew=WSnew,SSnew=SSnew, Clust = Clust)
 }
 
 
@@ -398,11 +396,10 @@ pdf(paste0(nerc_labels[sel_rto],"_",ln,".pdf"))
 
 
 ###Seperating the Simulations
-wind_sims <- solar_sims <- temp_sims <- clust_num <- list()
+wind_sims <- solar_sims <- clust_num <- list()
 for(i in 1:nsim){
   wind_sims[[i]] <- ynew_results[[i]]$WSnew
   solar_sims[[i]] <- ynew_results[[i]]$SSnew
-  temp_sims[[i]] <- ynew_results[[i]]$T2new
   clust_num[[i]] <- ynew_results[[i]]$Clust
   
 }
@@ -423,17 +420,17 @@ plot(clust_num[[sel]][,1], type = 'l',
      ylab = "Number of Clusters", xlab = "Hour Index")
 mtext("Single Simulation Run")
 
-plot(clust_num[[sel]][,2], type = 'l', ylim = c(0,432),
+plot(clust_num[[sel]][,2], type = 'l', ylim = c(0,2*n_site),
      main = "Maximum Number of Members \n in a Cluster",
      ylab = "Number of Sites", xlab = "Hour Index")
-abline(h = 216, col = 'red', lwd = 0.5, lty = 2)
+abline(h = n_site, col = 'red', lwd = 0.5, lty = 2)
 mtext("Single Simulation Run")
 
-plot(clust_num[[sel]][,3], type = 'l', ylim = c(0,216),
+plot(clust_num[[sel]][,3], type = 'l', ylim = c(0,n_site),
      main = "Minimum Number of Members in a Cluster",
      ylab = "Number of Sites", xlab = "Hour Index")
 mtext("Single Simulation Run")
-abline(h = 216, col = 'red', lwd = 0.5, lty = 2)
+abline(h = n_site, col = 'red', lwd = 0.5, lty = 2)
 
 
 
@@ -450,7 +447,7 @@ ggplot(clust_num, aes(x = factor(Hour), fill = factor(Num))) +
 
 #Plots by the Number of Clusters
 ggplot(clust_num, aes(Hour, Max_clust)) +
-  geom_hline(yintercept = 215) +
+  geom_hline(yintercept = n_site-1) +
   geom_boxplot(outlier.shape = NA) +
   ylab("Maximum Number of Grids within Clusters") +
   xlab("Hour of the Day") + 
@@ -458,7 +455,7 @@ ggplot(clust_num, aes(Hour, Max_clust)) +
 
 
 ggplot(clust_num, aes(Hour, Min_clust)) +
-  geom_hline(yintercept = 217) +
+  geom_hline(yintercept = n_site+1) +
   geom_boxplot(outlier.shape = NA) +
   ylab("Minimum Number of Grids within Clusters") +
   xlab("Hour of the Day") + 
@@ -468,7 +465,7 @@ ggplot(clust_num, aes(Hour, Min_clust)) +
 
 #Plots by the Number of Clusters
 ggplot(clust_num, aes(Hour, Max_clust)) +
-  geom_hline(yintercept = 215) +
+  geom_hline(yintercept = n_site-1) +
   geom_boxplot(aes(color = factor(Num)), outlier.shape = NA) +
   ylab("Maximum Number of Grids within Clusters") +
   xlab("Hour of the Day") + 
@@ -476,7 +473,7 @@ ggplot(clust_num, aes(Hour, Max_clust)) +
 
 
 ggplot(clust_num, aes(Hour, Min_clust)) +
-  geom_hline(yintercept = 217) +
+  geom_hline(yintercept = n_site+1) +
   geom_boxplot(aes(color = factor(Num)), outlier.shape = NA) +
   ylab("Minimum Number of Grids within Clusters") +
   xlab("Hour of the Day") + 
@@ -510,6 +507,8 @@ get_pca_plot(X = fld,
 
 
 
+
+
 #------------------------------------------------------------------------------#
 ###Solar
 Field <- "Solar"
@@ -536,42 +535,11 @@ get_pca_plot(X = fld,
 
 
 #------------------------------------------------------------------------------#
-###Temperature
-Field <- "Temp"
-fld <- t2m
-Get_Simulation_Skill(True_Data = fld,
-                     Simulations = temp_sims,
-                     Field_Name = Field)
-
-Get_PCWavelet_Sim_Skill(Data_Field = fld,
-                        Field_Name = Field,
-                        Sims = temp_sims,
-                        PCs=2)
-
-Get_Annual_Cycle(True_Data = fld, Field_Name = Field,
-                 Simulations = temp_sims,
-                 Resolution = "hourly",
-                 Start_Date = paste0("01-01-",yr," 00:00"))
-
-get_pca_plot(X = fld, 
-             Grid = grid_locs, 
-             Field = Field,
-             Sims = temp_sims,
-             Region = nerc_sf$Shapefiles[[sel_rto]])
-
-#------------------------------------------------------------------------------#
 ###Cross - Correlation across Sites. 
 Get_Site_Correlation(Fld1 = WS, #Wind
                      Fld2 = ssrd, #Solar
                      Fld1_Sims = wind_sims,
                      Fld2_Sims = solar_sims, 
-                     Grid = grid_locs,
-                     Region = nerc_sf$Shapefiles[[sel_rto]])
-
-Get_Site_Correlation(Fld1 = WS, #Wind
-                     Fld2 = t2m, #Solar
-                     Fld1_Sims = wind_sims,
-                     Fld2_Sims = temp_sims, 
                      Grid = grid_locs,
                      Region = nerc_sf$Shapefiles[[sel_rto]])
 
@@ -585,15 +553,6 @@ Get_Seasonal_Correlation(Fld1 = WS, #Wind
                          col_hx = "#af8dc3",
                          Region = nerc_sf$Shapefiles[[sel_rto]])
 
-
-Get_Seasonal_Correlation(Fld1 = WS, #Wind
-                         Fld2 = t2m, #Temp
-                         Fld1_Sims = wind_sims,
-                         Fld2_Sims = temp_sims, 
-                         Grid = grid_locs,
-                         start_date = paste0("01-01-",yr," 00:00"),
-                         col_hx = "#af8dc3",
-                         Region = nerc_sf$Shapefiles[[sel_rto]])
 
 
 
