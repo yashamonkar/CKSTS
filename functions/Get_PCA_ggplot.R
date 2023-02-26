@@ -17,7 +17,7 @@
 
 
 #______________________________________________________________________________#
-get_pca_plot <- function(X, Grid, Field, Sims, Region){
+get_pca_plot <- function(X, Grid, Field, Sims){
   
   ###Load Dependencies
   library(ggplot2)
@@ -34,11 +34,10 @@ get_pca_plot <- function(X, Grid, Field, Sims, Region){
   var <- (var)/sum(var)
   
   #Get Lat-Lon Extend
-  lat_lon <- Region %>% fortify() %>% select(long,lat)
-  lat_min <- min(lat_lon$lat)-0.5
-  lat_max <- max(lat_lon$lat)+0.5
-  lon_min <- min(lat_lon$long)-0.5
-  lon_max <- max(lat_lon$long)+0.5
+  lat_min <- min(Grid$lat)-0.5
+  lat_max <- max(Grid$lat)+0.5
+  lon_min <- min(Grid$lon)-0.5
+  lon_max <- max(Grid$lon)+0.5
   
   
   ###Plotting the Data PC-1

@@ -29,7 +29,6 @@ library(ggplot2)
 library(foreach)    #Parallel Execution
 library(doParallel) #Backend to foreach
 library(lubridate)
-library(rgdal)
 
 
 #Load Functions
@@ -43,11 +42,11 @@ source("functions/Get_nerc_annual_data.R")
 nerc_pop_temp <- get(load("data/NERC_Regions_Temp_Population.RData"))
 
 
-#NERC Shapefiles
-egrids <- readOGR(dsn= paste0("data/sf/egrid2020_subregions"),
-                  layer="eGRID2020_subregions")
-nerc_sf <- get_egrids(egrids_sf = egrids) #Convert to needed regions
-n_regions <- length(nerc_sf$Labels)
+#NERC Labels
+#egrids <- readOGR(dsn= paste0("data/sf/egrid2020_subregions"),
+#                  layer="eGRID2020_subregions")
+#nerc_sf <- get_egrids(egrids_sf = egrids) #Convert to needed regions
+#n_regions <- length(nerc_sf$Labels)
 nerc_labels <- c("Arizona_New_Mexico", "CAISO", "ERCOT", "Florida", 
                  "Wisconsin_Rural", "Midwest_MISO", "ISO_New_England", 
                  "Northwest", "NYISO", "PJM_East", "Michigan", "PJM_West", 
@@ -67,12 +66,11 @@ us <- map_data("state")
 
 #Hyper-parameters 
 yr <- 2020 #Select the year
-sel_rto <- 1 #Select the Grid Sub_region
+sel_rto <- 2 #Select the Grid Sub_region
 
 #Data Generation
 annual_data <- get_nerc_gridpoints(year = yr,
                                    rto = sel_rto,
-                                   Shapefiles = nerc_sf$Shapefiles,
                                    Labels = nerc_labels,
                                    All_Grids = nerc_pop_temp[[2]])
 
@@ -500,8 +498,7 @@ Get_Annual_Cycle(True_Data = fld, Field_Name = Field,
 get_pca_plot(X = fld, 
              Grid = grid_locs, 
              Field = Field,
-             Sims = wind_sims,
-             Region = nerc_sf$Shapefiles[[sel_rto]])
+             Sims = wind_sims)
 
 
 
@@ -530,8 +527,7 @@ Get_Annual_Cycle(True_Data = fld, Field_Name = Field,
 get_pca_plot(X = fld, 
              Grid = grid_locs, 
              Field = Field,
-             Sims = solar_sims,
-             Region = nerc_sf$Shapefiles[[sel_rto]])
+             Sims = solar_sims)
 
 
 #------------------------------------------------------------------------------#
@@ -540,8 +536,7 @@ Get_Site_Correlation(Fld1 = WS, #Wind
                      Fld2 = ssrd, #Solar
                      Fld1_Sims = wind_sims,
                      Fld2_Sims = solar_sims, 
-                     Grid = grid_locs,
-                     Region = nerc_sf$Shapefiles[[sel_rto]])
+                     Grid = grid_locs)
 
 
 Get_Seasonal_Correlation(Fld1 = WS, #Wind
@@ -550,8 +545,7 @@ Get_Seasonal_Correlation(Fld1 = WS, #Wind
                          Fld2_Sims = solar_sims, 
                          Grid = grid_locs,
                          start_date = paste0("01-01-",yr," 00:00"),
-                         col_hx = "#af8dc3",
-                         Region = nerc_sf$Shapefiles[[sel_rto]])
+                         col_hx = "#af8dc3")
 
 
 
