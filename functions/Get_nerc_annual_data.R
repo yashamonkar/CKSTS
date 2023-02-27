@@ -21,7 +21,6 @@ get_nerc_gridpoints <- function(year, rto, Labels, All_Grids){
   
   #Packages
   library(ncdf4) 
-  library(rgdal)
   library(ggplot2)
   library(dplyr)
   

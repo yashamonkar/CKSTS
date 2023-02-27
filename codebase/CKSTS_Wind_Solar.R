@@ -61,7 +61,7 @@ us <- map_data("state")
 ###Data Generation and Hyper-parameter selection
 
 #Hyper-parameters 
-yr <- 2020 #Select the year
+yr <- 2019 #Select the year
 sel_rto <- 2 #Select the Grid Sub_region
 
 #Data Generation
