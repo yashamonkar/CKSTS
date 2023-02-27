@@ -43,10 +43,6 @@ nerc_pop_temp <- get(load("data/NERC_Regions_Temp_Population.RData"))
 
 
 #NERC Labels
-#egrids <- readOGR(dsn= paste0("data/sf/egrid2020_subregions"),
-#                  layer="eGRID2020_subregions")
-#nerc_sf <- get_egrids(egrids_sf = egrids) #Convert to needed regions
-#n_regions <- length(nerc_sf$Labels)
 nerc_labels <- c("Arizona_New_Mexico", "CAISO", "ERCOT", "Florida", 
                  "Wisconsin_Rural", "Midwest_MISO", "ISO_New_England", 
                  "Northwest", "NYISO", "PJM_East", "Michigan", "PJM_West", 
