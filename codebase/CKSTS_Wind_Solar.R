@@ -78,10 +78,10 @@ grid_locs <- annual_data[[4]]
 
 #______________________________________________________________________________#
 #Subset
-n <- 500 #Subset
-ssrd <- ssrd[1:n,]
-WS <- WS[1:n,]
-ln <- c("2020")
+#n <- 1000 #Subset
+#ssrd <- ssrd[1:n,]
+#WS <- WS[1:n,]
+ln <- c("2019")
 
 #Select the field.
 Fld <- as.matrix(cbind(WS,ssrd))
@@ -359,11 +359,11 @@ source("functions/Get_Wind_PDF.R")
 
 #Set the Hyper-Parameters
 nneib <- 5
-nsim <- 6
+nsim <- 24
 
 
 #Compute and Store the Nearest Neighbors  
-cores=detectCores()
+cores=detectCores()-6
 registerDoParallel(cores)
 
 #Run the Simulator
