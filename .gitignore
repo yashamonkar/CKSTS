@@ -10,7 +10,7 @@
 *.txt
 
 # PDF Files
-*.pdf
+#*.pdf  #Change later on 
 
 # Shape Files
 *.nc
@@ -53,4 +53,3 @@ vignettes/*.pdf
 
 # R Environment Variables
 .Renviron
-*.RData
