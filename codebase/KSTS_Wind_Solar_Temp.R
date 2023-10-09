@@ -61,7 +61,7 @@ us <- map_data("state")
 
 #Hyper-parameters 
 yr <- 2019 #Select the year
-sel_rto <- 2 #Select the Grid Sub_region
+sel_rto <- 3 #Select the Grid Sub_region
 
 #Data Generation
 annual_data <- get_nerc_gridpoints(year = yr,
@@ -191,7 +191,7 @@ get_Clusters <- function(Xt, max_nc, method){
   library(NbClust)
   
   res<-NbClust(data = Xt, distance = "euclidean", 
-               min.nc=2, max.nc=max_nc, 
+               min.nc=3, max.nc=max_nc, 
                method = method, index = "ch")
   
   return(res$Best.partition)
